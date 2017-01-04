@@ -1,30 +1,20 @@
 package bigcommerce
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/dghubble/sling"
 )
 
-type Products struct {
-	Products []Product
-}
+// Products defines a list of the Product object.
+type Products []Product
 
-// type Products []map[Product]Product
-// type Products struct {
-// 	Products map[Product]Product
-// }
-
-// type Products struct {
-// 	Products []Product {
-// 		data map[Product]Product
-// 	}
-// }
-
+// Product describes the product resource
 type Product struct {
-	Id             int32              `json:"id"`
+	ID             int32              `json:"id"`
 	Name           string             `json:"name"`
-	Sku            string             `json:"name"`
+	Sku            string             `json:"sku"`
 	Description    string             `json:"description"`
 	Price          string             `json:"price"`
 	CostPrice      string             `json:"cost_price"`
@@ -35,27 +25,29 @@ type Product struct {
 	PrimaryImage   PrimaryImageEntity `json:"primary_image"`
 }
 
+// PrimaryImageEntity describes the image entity.
 type PrimaryImageEntity struct {
-	StandardUrl  string `json:"standard_url"`
-	TinyUrl      string `json:"tiny_url"`
-	ThumbnailUrl string `json:"thumbnail_url"`
-	ZoomUrl      string `json:"zoom_url"`
+	StandardURL  string `json:"standard_url"`
+	TinyURL      string `json:"tiny_url"`
+	ThumbnailURL string `json:"thumbnail_url"`
+	ZoomURL      string `json:"zoom_url"`
 }
 
+// ProductService adds the APIs for the Product resource.
 type ProductService struct {
 	sling *sling.Sling
 }
 
 func newProductService(sling *sling.Sling) *ProductService {
 	return &ProductService{
-		sling: sling.Path("products"),
+		sling: sling.Path("products/"),
 	}
 }
 
 // ProductListParams are the parameters for ProductService.List
 type ProductListParams struct {
-	MinId             int32  `url:"min_id,omitempty"`
-	MaxId             int32  `url:"max_id,omitempty"`
+	MinID             int32  `url:"min_id,omitempty"`
+	MaxID             int32  `url:"max_id,omitempty"`
 	Name              string `url:"name,omitempty"`
 	Sku               string `url:"sku,omitempty"`
 	Availability      string `url:"availability,omitempty"`
@@ -65,21 +57,20 @@ type ProductListParams struct {
 	MaxInventoryLevel int32  `url:"max_inventory_level,omitempty"`
 }
 
+// List returns a list of Producs matching the given ProductListParams.
 func (s *ProductService) List(params *ProductListParams) (*Products, *http.Response, error) {
-
-	// // text := "[{\"Id\": 100, \"Name\": \"Go\"}, {\"Id\": 200, \"Name\": \"Java\"}]"
-	// // Get byte slice from string.
-	// // bytes := []byte(Products)
-	//
-	// // Unmarshal string into structs.
-	// var products Products
-	// json.Unmarshal(bytes, &products)
 	products := new(Products)
 	apiError := new(APIError)
+
 	resp, err := s.sling.New().QueryStruct(params).Receive(products, apiError)
-	// fmt.Println(resp)
-	// fmt.Println(apiError)
-	// fmt.Println(products)
-	// fmt.Println(s.sling.New().QueryStruct(params))
 	return products, resp, relevantError(err, *apiError)
+}
+
+// Show returns the requested Product.
+func (s *ProductService) Show(id int32) (*Product, *http.Response, error) {
+	product := new(Product)
+	apiError := new(APIError)
+
+	resp, err := s.sling.New().Get(fmt.Sprintf("%d", id)).Receive(product, apiError)
+	return product, resp, relevantError(err, *apiError)
 }

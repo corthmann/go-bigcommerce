@@ -1,7 +1,6 @@
 package bigcommerce
 
 import (
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -19,18 +18,12 @@ var defaultTestTimeout = time.Second * 1
 func testServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 	mux := http.NewServeMux()
 	server := httptest.NewServer(mux)
-	transport := &http.Transport{
+	transport := &RewriteTransport{&http.Transport{
 		Proxy: func(req *http.Request) (*url.URL, error) {
-			fmt.Println("Here!")
-			fmt.Println(req)
+			// fmt.Println(req)
 			return url.Parse(server.URL)
 		},
-	}
-	// transport := &RewriteTransport{&http.Transport{
-	// 	Proxy: func(req *http.Request) (*url.URL, error) {
-	// 		return url.Parse(server.URL)
-	// 	},
-	// }}
+	}}
 	client := &http.Client{Transport: transport}
 	return client, mux, server
 }

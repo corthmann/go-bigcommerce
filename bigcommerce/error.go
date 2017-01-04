@@ -4,10 +4,12 @@ import (
 	"fmt"
 )
 
+// APIError contains a list of error details
 type APIError struct {
 	Errors []ErrorDetail
 }
 
+// ErrorDetail contains a code and message
 type ErrorDetail struct {
 	Code    int32  `json:"status"`
 	Message string `json:"message"`
