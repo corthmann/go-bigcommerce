@@ -57,7 +57,7 @@ type ProductListParams struct {
 	MaxInventoryLevel int32  `url:"max_inventory_level,omitempty"`
 }
 
-// List returns a list of Producs matching the given ProductListParams.
+// List returns a list of Products matching the given ProductListParams.
 func (s *ProductService) List(params *ProductListParams) (*Products, *http.Response, error) {
 	products := new(Products)
 	apiError := new(APIError)

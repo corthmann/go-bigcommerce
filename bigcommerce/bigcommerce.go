@@ -14,6 +14,7 @@ const (
 type Client struct {
 	sling *sling.Sling
 	// Bigcommerce API Services
+	Orders   *OrderService
 	Products *ProductService
 }
 
@@ -29,6 +30,7 @@ func NewClient(httpClient *http.Client, config *ClientConfig) *Client {
 	base := sling.New().Client(httpClient).SetBasicAuth(config.UserName, config.Password).Set("Accept", "application/json; charset=utf-8").Set("Content-Type", "application/json").Base(config.Endpoint + "/api/v2/")
 	return &Client{
 		sling:    base,
+		Orders:   newOrderService(base.New()),
 		Products: newProductService(base.New()),
 	}
 }
