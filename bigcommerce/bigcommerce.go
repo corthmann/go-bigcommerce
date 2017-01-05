@@ -14,8 +14,9 @@ const (
 type Client struct {
 	sling *sling.Sling
 	// Bigcommerce API Services
-	Orders   *OrderService
-	Products *ProductService
+	Orders        *OrderService
+	OrderStatuses *OrderStatusService
+	Products      *ProductService
 }
 
 // ClientConfig is used to configure the api connection.
@@ -29,8 +30,9 @@ type ClientConfig struct {
 func NewClient(httpClient *http.Client, config *ClientConfig) *Client {
 	base := sling.New().Client(httpClient).SetBasicAuth(config.UserName, config.Password).Set("Accept", "application/json; charset=utf-8").Set("Content-Type", "application/json").Base(config.Endpoint + "/api/v2/")
 	return &Client{
-		sling:    base,
-		Orders:   newOrderService(base.New()),
-		Products: newProductService(base.New()),
+		sling:         base,
+		Orders:        newOrderService(base.New()),
+		OrderStatuses: newOrderStatusService(base.New()),
+		Products:      newProductService(base.New()),
 	}
 }
