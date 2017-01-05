@@ -26,8 +26,9 @@ func TestOrderService_List(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
+	customerID := uint32(0)
 	params := &OrderListParams{
-		CustomerID: "0",
+		CustomerID: &customerID,
 	}
 	orders, _, err := client.Orders.List(params)
 	assert.Nil(t, err)

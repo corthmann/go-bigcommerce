@@ -79,9 +79,9 @@ type OrderListParams struct {
 	MaxID         int32   `url:"max_id,omitempty"`
 	MinTotal      float32 `url:"min_total,omitempty"`
 	MaxTotal      float32 `url:"max_total,omitempty"`
-	CustomerID    string  `url:"customer_id,omitempty"` // this is actually an int, but doesn't come into the url when it is = zero.... which is bad..
+	CustomerID    *uint32 `url:"customer_id,omitempty"`
 	Email         string  `url:"email,omitempty"`
-	StatusID      string  `url:"status_id,omitempty"`
+	StatusID      *uint32 `url:"status_id,omitempty"`
 	PaymentMethod string  `url:"payment_method,omitempty"`
 	//TODO: add date and boolean based params.
 }
