@@ -4,21 +4,27 @@ import (
 	"fmt"
 )
 
-// APIError contains a list of error details
-type APIError struct {
-	Errors []ErrorDetail
-}
-
-// ErrorDetail contains a code and message
-type ErrorDetail struct {
-	Code    int32  `json:"status"`
+type APIError []struct {
+	Status  int    `json:"status"`
 	Message string `json:"message"`
+	Details struct {
+		Errors []struct {
+			Type    string `json:"type"`
+			Product struct {
+				ID             int    `json:"id"`
+				Name           string `json:"name"`
+				InventoryLevel int    `json:"inventory_level"`
+				URL            string `json:"url"`
+				Resource       string `json:"resource"`
+			} `json:"product"`
+		} `json:"errors"`
+	} `json:"details"`
 }
 
 func (e APIError) Error() string {
-	if len(e.Errors) > 0 {
-		err := e.Errors[0]
-		return fmt.Sprintf("bigcommerce: %d %v", err.Code, err.Message)
+	if len(e) > 0 {
+		err := e[0]
+		return fmt.Sprintf("bigcommerce: %d %v", err.Status, err.Message)
 	}
 	return ""
 }
@@ -26,7 +32,7 @@ func (e APIError) Error() string {
 // Empty returns true if empty. Otherwise, at least 1 error message/code is
 // present and false is returned.
 func (e APIError) Empty() bool {
-	if len(e.Errors) == 0 {
+	if len(e) == 0 {
 		return true
 	}
 	return false

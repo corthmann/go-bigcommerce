@@ -54,3 +54,63 @@ func TestOrderService_Show(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
 }
+
+func TestOrderService_New(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "POST", r)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{ "id": 123 }`)
+	})
+
+	expected := &Order{ID: 123}
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := uint32(10)
+	statusID := uint32(0)
+	body := &OrderBody{
+		ExternalSource: "test-suite",
+		CustomerID:     &customerID,
+		StatusID:       &statusID,
+		BillingAddress: AddressEntity{
+			FirstName:   "Tester",
+			LastName:    "Test",
+			Street1:     "Test Street 1",
+			Street2:     "",
+			Zip:         "1234",
+			City:        "Test City",
+			Country:     "Denmark",
+			CountryIso2: "dk",
+			Phone:       "12345678",
+			Email:       "example@example.com",
+		},
+		Products: OrderProducts{
+			{ProductID: 1, Quantity: 1},
+			{ProductID: 2, Quantity: 1},
+		},
+		ShippingCostIncTax: 0.0,
+		ShippingAddresses: AddressEntities{
+			{
+				FirstName:   "Tester",
+				LastName:    "Test",
+				Street1:     "Test Street 1",
+				Street2:     "",
+				Zip:         "1234",
+				City:        "Test City",
+				Country:     "Denmark",
+				CountryIso2: "dk",
+				Phone:       "12345678",
+				Email:       "example@example.com",
+			},
+		},
+		CustomerMessage: "This is a test.",
+		StaffNotes:      "Yeah... I'm not buying it.",
+	}
+	order, _, err := client.Orders.New(body)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, order)
+}
