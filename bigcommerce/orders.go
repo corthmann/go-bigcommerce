@@ -98,6 +98,15 @@ func (s *OrderService) List(params *OrderListParams) (*Orders, *http.Response, e
 	return orders, resp, relevantError(err, *apiError)
 }
 
+// Count returns an OrderCount for Orders that matches the given OrderListParams.
+func (s *OrderService) Count(params *OrderListParams) (*Count, *http.Response, error) {
+	count := new(Count)
+	apiError := new(APIError)
+
+	resp, err := s.sling.Get("count").QueryStruct(params).Receive(count, apiError)
+	return count, resp, relevantError(err, *apiError)
+}
+
 // Show returns the requested Order.
 func (s *OrderService) Show(id int32) (*Order, *http.Response, error) {
 	order := new(Order)
@@ -142,8 +151,25 @@ func (s *OrderService) New(body *OrderBody) (*Order, *http.Response, error) {
 	order := new(Order)
 	apiError := new(APIError)
 
-	fmt.Println(body)
-
 	resp, err := s.sling.New().Post("").BodyJSON(body).Receive(order, apiError)
+	return order, resp, relevantError(err, *apiError)
+}
+
+// OrderEditParams describes the fields that are editable on an Order.
+type OrderEditParams struct {
+	CustomerID      *uint32       `json:"customer_id,omitempty"`
+	StatusID        *uint32       `json:"status_id,omitempty"`
+	IPAddress       string        `json:"ip_address,omitempty"`
+	StaffNotes      string        `json:"staff_notes,omitempty"`
+	CustomerMessage string        `json:"customer_message,omitempty"`
+	BillingAddress  AddressEntity `json:"billing_address,omitempty"`
+}
+
+// Edit updates the given OrderEditParams of the given Order.
+func (s *OrderService) Edit(id int32, params *OrderEditParams) (*Order, *http.Response, error) {
+	order := new(Order)
+	apiError := new(APIError)
+
+	resp, err := s.sling.New().Put(fmt.Sprintf("%d", id)).BodyJSON(params).Receive(order, apiError)
 	return order, resp, relevantError(err, *apiError)
 }

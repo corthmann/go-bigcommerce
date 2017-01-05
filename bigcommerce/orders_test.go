@@ -35,6 +35,34 @@ func TestOrderService_List(t *testing.T) {
 	assert.Equal(t, expected, orders)
 }
 
+func TestOrderService_Count(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/count", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		assertQuery(t, map[string]string{"customer_id": "0"}, r)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{ "count": 12 }`)
+	})
+
+	num := uint32(12)
+	expected := &Count{
+		Count: &num,
+	}
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := uint32(0)
+	params := &OrderListParams{
+		CustomerID: &customerID,
+	}
+	count, _, err := client.Orders.Count(params)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, count)
+}
+
 func TestOrderService_Show(t *testing.T) {
 	httpClient, mux, server := testServer()
 	defer server.Close()
@@ -111,6 +139,30 @@ func TestOrderService_New(t *testing.T) {
 		StaffNotes:      "Yeah... I'm not buying it.",
 	}
 	order, _, err := client.Orders.New(body)
+	assert.Nil(t, err)
+	assert.Equal(t, expected, order)
+}
+
+func TestOrderService_Edit(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/123", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "PUT", r)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{ "id": 123 }`)
+	})
+
+	expected := &Order{ID: 123}
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	statusID := uint32(1)
+	params := &OrderEditParams{
+		StatusID: &statusID,
+	}
+	order, _, err := client.Orders.Edit(123, params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
 }
