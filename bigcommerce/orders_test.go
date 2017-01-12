@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -30,7 +31,7 @@ func TestOrderService_List(t *testing.T) {
 	params := &OrderListParams{
 		CustomerID: &customerID,
 	}
-	orders, _, err := client.Orders.List(params)
+	orders, _, err := client.Orders.List(context.Background(), params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, orders)
 }
@@ -58,7 +59,7 @@ func TestOrderService_Count(t *testing.T) {
 	params := &OrderListParams{
 		CustomerID: &customerID,
 	}
-	count, _, err := client.Orders.Count(params)
+	count, _, err := client.Orders.Count(context.Background(), params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, count)
 }
@@ -78,7 +79,7 @@ func TestOrderService_Show(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	order, _, err := client.Orders.Show(123)
+	order, _, err := client.Orders.Show(context.Background(), 123)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
 }
@@ -138,7 +139,7 @@ func TestOrderService_New(t *testing.T) {
 		CustomerMessage: "This is a test.",
 		StaffNotes:      "Yeah... I'm not buying it.",
 	}
-	order, _, err := client.Orders.New(body)
+	order, _, err := client.Orders.New(context.Background(), body)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
 }
@@ -162,7 +163,7 @@ func TestOrderService_Edit(t *testing.T) {
 	params := &OrderEditParams{
 		StatusID: &statusID,
 	}
-	order, _, err := client.Orders.Edit(123, params)
+	order, _, err := client.Orders.Edit(context.Background(), 123, params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
 }

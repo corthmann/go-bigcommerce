@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -67,12 +68,14 @@ type AddressEntity struct {
 
 // OrderService adds the APIs for the Order resource.
 type OrderService struct {
-	sling *sling.Sling
+	sling      *sling.Sling
+	httpClient *http.Client
 }
 
-func newOrderService(sling *sling.Sling) *OrderService {
+func newOrderService(sling *sling.Sling, httpClient *http.Client) *OrderService {
 	return &OrderService{
-		sling: sling.Path("orders/"),
+		sling:      sling.Path("orders/"),
+		httpClient: httpClient,
 	}
 }
 
@@ -90,29 +93,29 @@ type OrderListParams struct {
 }
 
 // List returns a list of Orders matching the given OrderListParams.
-func (s *OrderService) List(params *OrderListParams) (*Orders, *http.Response, error) {
+func (s *OrderService) List(ctx context.Context, params *OrderListParams) (*Orders, *http.Response, error) {
 	orders := new(Orders)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().QueryStruct(params).Receive(orders, apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, orders, apiError)
 	return orders, resp, relevantError(err, *apiError)
 }
 
 // Count returns an OrderCount for Orders that matches the given OrderListParams.
-func (s *OrderService) Count(params *OrderListParams) (*Count, *http.Response, error) {
+func (s *OrderService) Count(ctx context.Context, params *OrderListParams) (*Count, *http.Response, error) {
 	count := new(Count)
 	apiError := new(APIError)
 
-	resp, err := s.sling.Get("count").QueryStruct(params).Receive(count, apiError)
+	resp, err := performRequest(ctx, s.sling.Get("count").QueryStruct(params), s.httpClient, count, apiError)
 	return count, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested Order.
-func (s *OrderService) Show(id int32) (*Order, *http.Response, error) {
+func (s *OrderService) Show(ctx context.Context, id int32) (*Order, *http.Response, error) {
 	order := new(Order)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().Get(fmt.Sprintf("%d", id)).Receive(order, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, order, apiError)
 	return order, resp, relevantError(err, *apiError)
 }
 
@@ -147,11 +150,11 @@ type OrderBody struct {
 }
 
 // New creates a new Order with the specified information and returns the new order.
-func (s *OrderService) New(body *OrderBody) (*Order, *http.Response, error) {
+func (s *OrderService) New(ctx context.Context, body *OrderBody) (*Order, *http.Response, error) {
 	order := new(Order)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().Post("").BodyJSON(body).Receive(order, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Post("").BodyJSON(body), s.httpClient, order, apiError)
 	return order, resp, relevantError(err, *apiError)
 }
 
@@ -166,10 +169,10 @@ type OrderEditParams struct {
 }
 
 // Edit updates the given OrderEditParams of the given Order.
-func (s *OrderService) Edit(id int32, params *OrderEditParams) (*Order, *http.Response, error) {
+func (s *OrderService) Edit(ctx context.Context, id int32, params *OrderEditParams) (*Order, *http.Response, error) {
 	order := new(Order)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().Put(fmt.Sprintf("%d", id)).BodyJSON(params).Receive(order, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Put(fmt.Sprintf("%d", id)).BodyJSON(params), s.httpClient, order, apiError)
 	return order, resp, relevantError(err, *apiError)
 }
