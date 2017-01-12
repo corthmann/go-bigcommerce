@@ -4,7 +4,7 @@ Go Bigcommerce REST API
 Installation
 -------------
 ```
-go get github.com/corthmann/go-bigcommerce
+go get github.com/corthmann/go-bigcommerce/bigcommerce
 ```
 
 Usage
