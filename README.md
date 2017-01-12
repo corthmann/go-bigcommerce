@@ -10,7 +10,7 @@ go get github.com/corthmann/go-bigcommerce
 Usage
 -------------
 ```
-import {}
+import { "bigcommerce" }
 config := &bigcommerce.ClientConfig{
   Endpoint: "https://example.bigcommerce.com",
   UserName: "go-bigcommerce",
