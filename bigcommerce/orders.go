@@ -81,6 +81,9 @@ func newOrderService(sling *sling.Sling, httpClient *http.Client) *OrderService 
 
 // OrderListParams are the parameters for OrderService.List
 type OrderListParams struct {
+	Page          int32   `url:"page,omitempty"`
+	Limit         int32   `url:"limit,omitempty"`
+	Sort          string  `url:"sort,omitempty"`
 	MinID         int32   `url:"min_id,omitempty"`
 	MaxID         int32   `url:"max_id,omitempty"`
 	MinTotal      float32 `url:"min_total,omitempty"`
