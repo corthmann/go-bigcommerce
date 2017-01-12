@@ -20,7 +20,6 @@ func testServer() (*http.Client, *http.ServeMux, *httptest.Server) {
 	server := httptest.NewServer(mux)
 	transport := &RewriteTransport{&http.Transport{
 		Proxy: func(req *http.Request) (*url.URL, error) {
-			// fmt.Println(req)
 			return url.Parse(server.URL)
 		},
 	}}

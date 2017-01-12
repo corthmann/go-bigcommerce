@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/dghubble/sling"
+	"golang.org/x/net/context"
 )
 
 // Products defines a list of the Product object.
@@ -35,12 +36,14 @@ type PrimaryImageEntity struct {
 
 // ProductService adds the APIs for the Product resource.
 type ProductService struct {
-	sling *sling.Sling
+	sling      *sling.Sling
+	httpClient *http.Client
 }
 
-func newProductService(sling *sling.Sling) *ProductService {
+func newProductService(sling *sling.Sling, httpClient *http.Client) *ProductService {
 	return &ProductService{
-		sling: sling.Path("products/"),
+		sling:      sling.Path("products/"),
+		httpClient: httpClient,
 	}
 }
 
@@ -58,19 +61,19 @@ type ProductListParams struct {
 }
 
 // List returns a list of Products matching the given ProductListParams.
-func (s *ProductService) List(params *ProductListParams) (*Products, *http.Response, error) {
+func (s *ProductService) List(ctx context.Context, params *ProductListParams) (*Products, *http.Response, error) {
 	products := new(Products)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().QueryStruct(params).Receive(products, apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, products, apiError) //.Receive(products, apiError)
 	return products, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested Product.
-func (s *ProductService) Show(id int32) (*Product, *http.Response, error) {
+func (s *ProductService) Show(ctx context.Context, id int32) (*Product, *http.Response, error) {
 	product := new(Product)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().Get(fmt.Sprintf("%d", id)).Receive(product, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, product, apiError)
 	return product, resp, relevantError(err, *apiError)
 }

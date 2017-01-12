@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -29,7 +30,7 @@ func TestProductService_List(t *testing.T) {
 	params := &ProductListParams{
 		Sku: "VIV-300020",
 	}
-	products, _, err := client.Products.List(params)
+	products, _, err := client.Products.List(context.Background(), params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, products)
 }
@@ -49,7 +50,7 @@ func TestProductService_Show(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	product, _, err := client.Products.Show(123)
+	product, _, err := client.Products.Show(context.Background(), 123)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, product)
 }
