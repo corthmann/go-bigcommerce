@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
@@ -19,12 +20,14 @@ type OrderStatus struct {
 
 // OrderStatusService adds the APIs for the Product resource.
 type OrderStatusService struct {
-	sling *sling.Sling
+	sling      *sling.Sling
+	httpClient *http.Client
 }
 
-func newOrderStatusService(sling *sling.Sling) *OrderStatusService {
+func newOrderStatusService(sling *sling.Sling, httpClient *http.Client) *OrderStatusService {
 	return &OrderStatusService{
-		sling: sling.Path("order_statuses/"),
+		sling:      sling.Path("order_statuses/"),
+		httpClient: httpClient,
 	}
 }
 
@@ -35,19 +38,19 @@ type OrderStatusListParams struct {
 }
 
 // List returns a list of Products matching the given ProductListParams.
-func (s *OrderStatusService) List(params *OrderStatusListParams) (*OrderStatuses, *http.Response, error) {
+func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListParams) (*OrderStatuses, *http.Response, error) {
 	orderStatuses := new(OrderStatuses)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().QueryStruct(params).Receive(orderStatuses, apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, orderStatuses, apiError)
 	return orderStatuses, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested OrderStatus.
-func (s *OrderStatusService) Show(id int32) (*OrderStatus, *http.Response, error) {
+func (s *OrderStatusService) Show(ctx context.Context, id int32) (*OrderStatus, *http.Response, error) {
 	orderStatus := new(OrderStatus)
 	apiError := new(APIError)
 
-	resp, err := s.sling.New().Get(fmt.Sprintf("%d", id)).Receive(orderStatus, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, orderStatus, apiError)
 	return orderStatus, resp, relevantError(err, *apiError)
 }

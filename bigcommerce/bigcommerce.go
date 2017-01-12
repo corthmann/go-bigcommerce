@@ -36,7 +36,7 @@ func NewClient(httpClient *http.Client, config *ClientConfig) *Client {
 	return &Client{
 		sling:         base,
 		Orders:        newOrderService(base.New(), httpClient),
-		OrderStatuses: newOrderStatusService(base.New()),
+		OrderStatuses: newOrderStatusService(base.New(), httpClient),
 		Products:      newProductService(base.New(), httpClient),
 	}
 }

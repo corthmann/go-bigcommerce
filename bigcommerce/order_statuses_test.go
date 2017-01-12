@@ -1,6 +1,7 @@
 package bigcommerce
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 	"testing"
@@ -29,7 +30,7 @@ func TestOrderStatusService_List(t *testing.T) {
 	params := &OrderStatusListParams{
 		Limit: 1,
 	}
-	orderStatuses, _, err := client.OrderStatuses.List(params)
+	orderStatuses, _, err := client.OrderStatuses.List(context.Background(), params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, orderStatuses)
 }
@@ -49,7 +50,7 @@ func TestOrderStatusService_Show(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	orderStatus, _, err := client.OrderStatuses.Show(1)
+	orderStatus, _, err := client.OrderStatuses.Show(context.Background(), 1)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, orderStatus)
 }
