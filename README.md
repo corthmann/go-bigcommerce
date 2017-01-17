@@ -9,6 +9,8 @@ go get github.com/corthmann/go-bigcommerce/bigcommerce
 
 Usage
 -------------
+See [GoDoc](https://godoc.org/github.com/corthmann/go-bigcommerce/bigcommerce) for API and examples.
+
 ```
 import { "bigcommerce" }
 config := &bigcommerce.ClientConfig{
