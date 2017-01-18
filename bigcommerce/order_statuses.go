@@ -8,9 +8,6 @@ import (
 	"github.com/dghubble/sling"
 )
 
-// OrderStatuses defines a list of the OrderStatus object.
-type OrderStatuses []OrderStatus
-
 // OrderStatus describes the product resource
 type OrderStatus struct {
 	ID    int32  `json:"id"`
@@ -38,12 +35,12 @@ type OrderStatusListParams struct {
 }
 
 // List returns a list of Products matching the given ProductListParams.
-func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListParams) (*OrderStatuses, *http.Response, error) {
-	orderStatuses := new(OrderStatuses)
+func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListParams) ([]OrderStatus, *http.Response, error) {
+	var os []OrderStatus
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, orderStatuses, apiError)
-	return orderStatuses, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, &os, apiError)
+	return os, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested OrderStatus.

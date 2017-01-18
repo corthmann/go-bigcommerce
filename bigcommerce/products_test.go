@@ -20,7 +20,7 @@ func TestProductService_List(t *testing.T) {
 		fmt.Fprintf(w, `[{ "id": 123 }]`)
 	})
 
-	expected := &Products{
+	expected := []Product{
 		{ID: 123},
 	}
 	client := NewClient(httpClient, &ClientConfig{

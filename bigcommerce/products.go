@@ -8,9 +8,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// Products defines a list of the Product object.
-type Products []Product
-
 // Product describes the product resource
 type Product struct {
 	ID             int32              `json:"id"`
@@ -61,12 +58,12 @@ type ProductListParams struct {
 }
 
 // List returns a list of Products matching the given ProductListParams.
-func (s *ProductService) List(ctx context.Context, params *ProductListParams) (*Products, *http.Response, error) {
-	products := new(Products)
-	apiError := new(APIError)
+func (s *ProductService) List(ctx context.Context, params *ProductListParams) ([]Product, *http.Response, error) {
+	var products []Product
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, products, apiError) //.Receive(products, apiError)
-	return products, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, &products, apiError) //.Receive(products, apiError)
+	return products, resp, relevantError(err, apiError)
 }
 
 // Show returns the requested Product.

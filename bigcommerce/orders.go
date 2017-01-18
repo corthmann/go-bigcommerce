@@ -8,9 +8,6 @@ import (
 	"github.com/dghubble/sling"
 )
 
-// Orders defines a list of the Order object.
-type Orders []Order
-
 // Order describes the product resource
 type Order struct {
 	ID                   int32         `json:"id"`
@@ -77,21 +74,21 @@ type OrderListParams struct {
 }
 
 // List returns a list of Orders matching the given OrderListParams.
-func (s *OrderService) List(ctx context.Context, params *OrderListParams) (*Orders, *http.Response, error) {
-	orders := new(Orders)
+func (s *OrderService) List(ctx context.Context, params *OrderListParams) ([]Order, *http.Response, error) {
+	var orders []Order
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, orders, apiError)
+	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, &orders, apiError)
 	return orders, resp, relevantError(err, *apiError)
 }
 
 // Count returns an OrderCount for Orders that matches the given OrderListParams.
-func (s *OrderService) Count(ctx context.Context, params *OrderListParams) (*Count, *http.Response, error) {
-	count := new(Count)
+func (s *OrderService) Count(ctx context.Context, params *OrderListParams) (int, *http.Response, error) {
+	var count count
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.Get("count").QueryStruct(params), s.httpClient, count, apiError)
-	return count, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.Get("count").QueryStruct(params), s.httpClient, &count, apiError)
+	return count.Count, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested Order.
@@ -102,9 +99,6 @@ func (s *OrderService) Show(ctx context.Context, id int32) (*Order, *http.Respon
 	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, order, apiError)
 	return order, resp, relevantError(err, *apiError)
 }
-
-// OrderProducts defines a list of the OrderProduct object.
-type OrderProducts []OrderProduct
 
 // OrderProduct defines a product to be included in the OrderBody.
 // Regular Products require: ProductID and Quantity
@@ -123,7 +117,7 @@ type OrderBody struct {
 	CustomerID         *uint32         `json:"customer_id"`
 	StatusID           *uint32         `json:"status_id"`
 	BillingAddress     AddressEntity   `json:"billing_address"`
-	Products           OrderProducts   `json:"products"`
+	Products           []OrderProduct  `json:"products"`
 	ShippingCostIncTax float32         `json:"shipping_cost_inc_tax,omitempty"`
 	ShippingCostExTax  float32         `json:"shipping_cost_ex_tax,omitempty"`
 	HandlingCostIncTax float32         `json:"handling_cost_inc_tax,omitempty"`

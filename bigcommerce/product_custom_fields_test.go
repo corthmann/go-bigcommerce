@@ -20,7 +20,7 @@ func TestProductCustomFieldService_List(t *testing.T) {
 		fmt.Fprintf(w, `[{ "id": 123 }]`)
 	})
 
-	expected := &ProductCustomFields{
+	expected := []ProductCustomField{
 		{ID: 123},
 	}
 	client := NewClient(httpClient, &ClientConfig{
