@@ -20,7 +20,7 @@ func TestOrderService_List(t *testing.T) {
 		fmt.Fprintf(w, `[{ "id": 123 }]`)
 	})
 
-	expected := &Orders{
+	expected := []Order{
 		{ID: 123},
 	}
 	client := NewClient(httpClient, &ClientConfig{
@@ -47,10 +47,7 @@ func TestOrderService_Count(t *testing.T) {
 		fmt.Fprintf(w, `{ "count": 12 }`)
 	})
 
-	num := uint32(12)
-	expected := &Count{
-		Count: &num,
-	}
+	expected := 12
 	client := NewClient(httpClient, &ClientConfig{
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
@@ -117,7 +114,7 @@ func TestOrderService_New(t *testing.T) {
 			Phone:       "12345678",
 			Email:       "example@example.com",
 		},
-		Products: OrderProducts{
+		Products: []OrderProduct{
 			{ProductID: 1, Quantity: 1},
 			{ProductID: 2, Quantity: 1},
 		},

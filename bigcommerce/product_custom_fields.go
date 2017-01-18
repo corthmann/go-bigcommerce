@@ -8,9 +8,6 @@ import (
 	"golang.org/x/net/context"
 )
 
-// ProductCustomFields defines a list of the ProductCustomField object.
-type ProductCustomFields []ProductCustomField
-
 // ProductCustomField describes the product custom field resource
 type ProductCustomField struct {
 	ID        int32  `json:"id"`
@@ -39,11 +36,11 @@ type ProductCustomFieldListParams struct {
 }
 
 // List returns a list of ProductCustomFields matching the given ProductCustomFieldListParams.
-func (s *ProductCustomFieldService) List(ctx context.Context, productID int32, params *ProductCustomFieldListParams) (*ProductCustomFields, *http.Response, error) {
-	customFields := new(ProductCustomFields)
+func (s *ProductCustomFieldService) List(ctx context.Context, productID int32, params *ProductCustomFieldListParams) ([]ProductCustomField, *http.Response, error) {
+	var customFields []ProductCustomField
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/custom_fields", productID)).QueryStruct(params), s.httpClient, customFields, apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/custom_fields", productID)).QueryStruct(params), s.httpClient, &customFields, apiError)
 	return customFields, resp, relevantError(err, *apiError)
 }
 

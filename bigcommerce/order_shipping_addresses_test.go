@@ -20,7 +20,7 @@ func TestOrderShippingAddressService_List(t *testing.T) {
 		fmt.Fprintf(w, `[{ "id": 123 }]`)
 	})
 
-	expected := &OrderShippingAddresses{
+	expected := []OrderShippingAddress{
 		{ID: 123},
 	}
 	client := NewClient(httpClient, &ClientConfig{

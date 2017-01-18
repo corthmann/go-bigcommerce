@@ -1,8 +1,8 @@
 package bigcommerce
 
-// Count is a generic object used for returning resource counts.
-type Count struct {
-	Count *uint32 `json:"count"`
+// count is a generic object used for returning resource counts.
+type count struct {
+	Count int `json:"count"`
 }
 
 // AddressEntities defines a list of the AddressEntity object.

@@ -8,9 +8,6 @@ import (
 	"github.com/dghubble/sling"
 )
 
-// OrderShippingAddresses defines a list of the OrderShippingAddress object.
-type OrderShippingAddresses []OrderShippingAddress
-
 // Order describes the product resource
 type OrderShippingAddress struct {
 	AddressEntity
@@ -38,28 +35,28 @@ type OrderShippingAddressListParams struct {
 }
 
 // List returns a list of OrderShippingAddresses matching the given OrderShippingAddressListParams.
-func (s *OrderShippingAddressService) List(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) (*OrderShippingAddresses, *http.Response, error) {
-	orderShippingAddresses := new(OrderShippingAddresses)
+func (s *OrderShippingAddressService) List(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) ([]OrderShippingAddress, *http.Response, error) {
+	var osa []OrderShippingAddress
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses", orderID)).QueryStruct(params), s.httpClient, orderShippingAddresses, apiError)
-	return orderShippingAddresses, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses", orderID)).QueryStruct(params), s.httpClient, &osa, apiError)
+	return osa, resp, relevantError(err, *apiError)
 }
 
 // Count returns an OrderShippingAddressCount for OrderShippingAddresses that matches the given OrderShippingAddressListParams.
-func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) (*Count, *http.Response, error) {
-	count := new(Count)
+func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) (int, *http.Response, error) {
+	var cnt count
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses/count", orderID)).QueryStruct(params), s.httpClient, count, apiError)
-	return count, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses/count", orderID)).QueryStruct(params), s.httpClient, &cnt, apiError)
+	return cnt.Count, resp, relevantError(err, *apiError)
 }
 
 // Show returns the requested OrderShippingAddress.
 func (s *OrderShippingAddressService) Show(ctx context.Context, orderID int32, id int32) (*OrderShippingAddress, *http.Response, error) {
-	orderShippingAddress := new(OrderShippingAddress)
+	osa := new(OrderShippingAddress)
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses/%d", orderID, id)), s.httpClient, orderShippingAddress, apiError)
-	return orderShippingAddress, resp, relevantError(err, *apiError)
+	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/shipping_addresses/%d", orderID, id)), s.httpClient, osa, apiError)
+	return osa, resp, relevantError(err, *apiError)
 }
