@@ -17,7 +17,7 @@ func TestOrderShippingAddressService_List(t *testing.T) {
 		assertMethod(t, "GET", r)
 		assertQuery(t, map[string]string{"page": "1"}, r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `[{ "id": 123 }]`)
+		fmt.Fprint(w, `[{ "id": 123 }]`)
 	})
 
 	expected := []OrderShippingAddress{
@@ -42,7 +42,7 @@ func TestOrderShippingAddressService_Show(t *testing.T) {
 	mux.HandleFunc("/api/v2/orders/12/shipping_addresses/3", func(w http.ResponseWriter, r *http.Request) {
 		assertMethod(t, "GET", r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "id": 123 }`)
+		fmt.Fprint(w, `{ "id": 123 }`)
 	})
 
 	expected := &OrderShippingAddress{ID: 123}

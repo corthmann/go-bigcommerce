@@ -10,8 +10,8 @@ import (
 
 // ProductCustomField describes the product custom field resource
 type ProductCustomField struct {
-	ID        int32  `json:"id"`
-	ProductID int32  `json:"product_id"`
+	ID        int    `json:"id"`
+	ProductID int    `json:"product_id"`
 	Name      string `json:"name"`
 	Text      string `json:"text"`
 }
@@ -31,12 +31,12 @@ func newProductCustomFieldService(sling *sling.Sling, httpClient *http.Client) *
 
 // ProductCustomFieldListParams are the parameters for ProductCustomFieldService.List
 type ProductCustomFieldListParams struct {
-	Page  int32 `url:"page,omitempty"`
-	Limit int32 `url:"limit,omitempty"`
+	Page  int `url:"page,omitempty"`
+	Limit int `url:"limit,omitempty"`
 }
 
 // List returns a list of ProductCustomFields matching the given ProductCustomFieldListParams.
-func (s *ProductCustomFieldService) List(ctx context.Context, productID int32, params *ProductCustomFieldListParams) ([]ProductCustomField, *http.Response, error) {
+func (s *ProductCustomFieldService) List(ctx context.Context, productID int, params *ProductCustomFieldListParams) ([]ProductCustomField, *http.Response, error) {
 	var customFields []ProductCustomField
 	apiError := new(APIError)
 
@@ -45,7 +45,7 @@ func (s *ProductCustomFieldService) List(ctx context.Context, productID int32, p
 }
 
 // Show returns the requested ProductCustomField.
-func (s *ProductCustomFieldService) Show(ctx context.Context, productID int32, id int32) (*ProductCustomField, *http.Response, error) {
+func (s *ProductCustomFieldService) Show(ctx context.Context, productID int, id int) (*ProductCustomField, *http.Response, error) {
 	customField := new(ProductCustomField)
 	apiError := new(APIError)
 

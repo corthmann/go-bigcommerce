@@ -10,9 +10,9 @@ import (
 
 // OrderStatus describes the product resource
 type OrderStatus struct {
-	ID    int32  `json:"id"`
+	ID    int    `json:"id"`
 	Name  string `json:"name"`
-	Order int32  `json:"order"`
+	Order int    `json:"order"`
 }
 
 // OrderStatusService adds the APIs for the Product resource.
@@ -30,8 +30,8 @@ func newOrderStatusService(sling *sling.Sling, httpClient *http.Client) *OrderSt
 
 // OrderStatusListParams are the parameters for OrderStatusService.List
 type OrderStatusListParams struct {
-	Page  int32 `url:"page,omitempty"`
-	Limit int32 `url:"limit,omitempty"`
+	Page  int `url:"page,omitempty"`
+	Limit int `url:"limit,omitempty"`
 }
 
 // List returns a list of Products matching the given ProductListParams.
@@ -44,7 +44,7 @@ func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListPa
 }
 
 // Show returns the requested OrderStatus.
-func (s *OrderStatusService) Show(ctx context.Context, id int32) (*OrderStatus, *http.Response, error) {
+func (s *OrderStatusService) Show(ctx context.Context, id int) (*OrderStatus, *http.Response, error) {
 	orderStatus := new(OrderStatus)
 	apiError := new(APIError)
 
