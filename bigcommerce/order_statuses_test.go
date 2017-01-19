@@ -17,7 +17,7 @@ func TestOrderStatusService_List(t *testing.T) {
 		assertMethod(t, "GET", r)
 		assertQuery(t, map[string]string{"limit": "1"}, r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `[{ "id": 123 }]`)
+		fmt.Fprint(w, `[{ "id": 123 }]`)
 	})
 
 	expected := []OrderStatus{
@@ -42,7 +42,7 @@ func TestOrderStatusService_Show(t *testing.T) {
 	mux.HandleFunc("/api/v2/order_statuses/1", func(w http.ResponseWriter, r *http.Request) {
 		assertMethod(t, "GET", r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "id": 1 }`)
+		fmt.Fprint(w, `{ "id": 1 }`)
 	})
 
 	expected := &OrderStatus{ID: 1}

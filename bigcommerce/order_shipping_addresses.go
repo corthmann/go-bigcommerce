@@ -11,8 +11,8 @@ import (
 // Order describes the product resource
 type OrderShippingAddress struct {
 	AddressEntity
-	ID      int32 `json:"id"`
-	OrderID int32 `json:"order_id"`
+	ID      int `json:"id"`
+	OrderID int `json:"order_id"`
 }
 
 // OrderShippingAddressService adds the APIs for the OrderShippingAddress resource.
@@ -30,12 +30,12 @@ func newOrderShippingAddressService(sling *sling.Sling, httpClient *http.Client)
 
 // OrderShippingAddressListParams are the parameters for OrderShippingAddressService.List
 type OrderShippingAddressListParams struct {
-	Page  int32 `url:"page,omitempty"`
-	Limit int32 `url:"limit,omitempty"`
+	Page  int `url:"page,omitempty"`
+	Limit int `url:"limit,omitempty"`
 }
 
 // List returns a list of OrderShippingAddresses matching the given OrderShippingAddressListParams.
-func (s *OrderShippingAddressService) List(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) ([]OrderShippingAddress, *http.Response, error) {
+func (s *OrderShippingAddressService) List(ctx context.Context, orderID int, params *OrderShippingAddressListParams) ([]OrderShippingAddress, *http.Response, error) {
 	var osa []OrderShippingAddress
 	apiError := new(APIError)
 
@@ -44,7 +44,7 @@ func (s *OrderShippingAddressService) List(ctx context.Context, orderID int32, p
 }
 
 // Count returns an OrderShippingAddressCount for OrderShippingAddresses that matches the given OrderShippingAddressListParams.
-func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int32, params *OrderShippingAddressListParams) (int, *http.Response, error) {
+func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int, params *OrderShippingAddressListParams) (int, *http.Response, error) {
 	var cnt count
 	apiError := new(APIError)
 
@@ -53,7 +53,7 @@ func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int32, 
 }
 
 // Show returns the requested OrderShippingAddress.
-func (s *OrderShippingAddressService) Show(ctx context.Context, orderID int32, id int32) (*OrderShippingAddress, *http.Response, error) {
+func (s *OrderShippingAddressService) Show(ctx context.Context, orderID int, id int) (*OrderShippingAddress, *http.Response, error) {
 	osa := new(OrderShippingAddress)
 	apiError := new(APIError)
 

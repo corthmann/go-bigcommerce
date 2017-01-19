@@ -17,7 +17,7 @@ func TestProductCustomFieldService_List(t *testing.T) {
 		assertMethod(t, "GET", r)
 		assertQuery(t, map[string]string{"page": "1"}, r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `[{ "id": 123 }]`)
+		fmt.Fprint(w, `[{ "id": 123 }]`)
 	})
 
 	expected := []ProductCustomField{
@@ -42,7 +42,7 @@ func TestProductCustomFieldService_Show(t *testing.T) {
 	mux.HandleFunc("/api/v2/products/12/custom_fields/3", func(w http.ResponseWriter, r *http.Request) {
 		assertMethod(t, "GET", r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "id": 123 }`)
+		fmt.Fprint(w, `{ "id": 123 }`)
 	})
 
 	expected := &ProductCustomField{ID: 123}

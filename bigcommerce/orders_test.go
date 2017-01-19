@@ -17,7 +17,7 @@ func TestOrderService_List(t *testing.T) {
 		assertMethod(t, "GET", r)
 		assertQuery(t, map[string]string{"customer_id": "0"}, r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `[{ "id": 123 }]`)
+		fmt.Fprint(w, `[{ "id": 123 }]`)
 	})
 
 	expected := []Order{
@@ -27,7 +27,7 @@ func TestOrderService_List(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	customerID := uint32(0)
+	customerID := 0
 	params := &OrderListParams{
 		CustomerID: &customerID,
 	}
@@ -44,7 +44,7 @@ func TestOrderService_Count(t *testing.T) {
 		assertMethod(t, "GET", r)
 		assertQuery(t, map[string]string{"customer_id": "0"}, r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "count": 12 }`)
+		fmt.Fprint(w, `{ "count": 12 }`)
 	})
 
 	expected := 12
@@ -52,7 +52,7 @@ func TestOrderService_Count(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	customerID := uint32(0)
+	customerID := 0
 	params := &OrderListParams{
 		CustomerID: &customerID,
 	}
@@ -68,7 +68,7 @@ func TestOrderService_Show(t *testing.T) {
 	mux.HandleFunc("/api/v2/orders/123", func(w http.ResponseWriter, r *http.Request) {
 		assertMethod(t, "GET", r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "id": 123 }`)
+		fmt.Fprint(w, `{ "id": 123 }`)
 	})
 
 	expected := &Order{ID: 123}
@@ -88,7 +88,7 @@ func TestOrderService_New(t *testing.T) {
 	mux.HandleFunc("/api/v2/orders/", func(w http.ResponseWriter, r *http.Request) {
 		assertMethod(t, "POST", r)
 		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, `{ "id": 123 }`)
+		fmt.Fprint(w, `{ "id": 123 }`)
 	})
 
 	expected := &Order{ID: 123}
@@ -96,8 +96,8 @@ func TestOrderService_New(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	customerID := uint32(10)
-	statusID := uint32(0)
+	customerID := 10
+	statusID := 0
 	body := &OrderBody{
 		ExternalSource: "test-suite",
 		CustomerID:     &customerID,
