@@ -298,7 +298,7 @@ func TestOrderService_Edit(t *testing.T) {
 		Endpoint: "https://example.com",
 		UserName: "go-bigcommerce",
 		Password: "12345"})
-	statusID := uint32(1)
+	statusID := 1
 	params := &OrderEditParams{
 		StatusID: &statusID,
 	}

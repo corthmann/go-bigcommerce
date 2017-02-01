@@ -139,12 +139,12 @@ func (s *OrderService) New(ctx context.Context, body *OrderBody) (*Order, *http.
 
 // OrderEditParams describes the fields that are editable on an Order.
 type OrderEditParams struct {
-	CustomerID      *uint32       `json:"customer_id,omitempty"`
-	StatusID        *uint32       `json:"status_id,omitempty"`
-	IPAddress       string        `json:"ip_address,omitempty"`
-	StaffNotes      string        `json:"staff_notes,omitempty"`
-	CustomerMessage string        `json:"customer_message,omitempty"`
-	BillingAddress  AddressEntity `json:"billing_address,omitempty"`
+	CustomerID      *int           `json:"customer_id,omitempty"`
+	StatusID        *int           `json:"status_id,omitempty"`
+	IPAddress       string         `json:"ip_address,omitempty"`
+	StaffNotes      string         `json:"staff_notes,omitempty"`
+	CustomerMessage string         `json:"customer_message,omitempty"`
+	BillingAddress  *AddressEntity `json:"billing_address,omitempty"`
 }
 
 // Edit updates the given OrderEditParams of the given Order.
