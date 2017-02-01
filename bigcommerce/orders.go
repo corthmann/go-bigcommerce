@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"net/http"
 
-	"time"
-
 	"github.com/dghubble/sling"
 )
 
@@ -14,9 +12,9 @@ import (
 type Order struct {
 	ID                   int           `json:"id"`
 	CustomerID           int           `json:"customer_id"`
-	DateCreated          time.Time     `json:"date_created"`
-	DateModified         time.Time     `json:"date_modified"`
-	DateShipped          time.Time     `json:"date_shipped"`
+	DateCreated          BCTime        `json:"date_created"`
+	DateModified         BCTime        `json:"date_modified"`
+	DateShipped          BCTime        `json:"date_shipped"`
 	StatusID             int           `json:"status_id"`
 	Status               string        `json:"status"`
 	HandlingCostExTax    float64       `json:"handling_cost_ex_tax,string"`
