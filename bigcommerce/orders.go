@@ -26,6 +26,7 @@ type Order struct {
 	SubTotalExTax        float64       `json:"subtotal_ex_tax,string"`
 	SubTotalIncTax       float64       `json:"subtotal_inc_tax,string"`
 	SubTotalTax          float64       `json:"subtotal_tax,string"`
+	DiscountAmount       float64       `json:"discount_amount"`
 	TotalExTax           float64       `json:"total_ex_tax,string"`
 	TotalIncTax          float64       `json:"total_inc_tax,string"`
 	TotalTax             float64       `json:"total_tax,string"`
@@ -122,6 +123,7 @@ type OrderBody struct {
 	ShippingCostExTax  float64         `json:"shipping_cost_ex_tax,omitempty"`
 	HandlingCostIncTax float64         `json:"handling_cost_inc_tax,omitempty"`
 	HandlingCostExTax  float64         `json:"handling_cost_ex_tax,omitempty"`
+	DiscountAmount     float64         `json:"discount_amount"`
 	ShippingAddresses  AddressEntities `json:"shipping_addresses,omitempty"`
 	CustomerMessage    string          `json:"customer_message"`
 	StaffNotes         string          `json:"staff_notes"`
