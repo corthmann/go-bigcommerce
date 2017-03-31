@@ -26,7 +26,6 @@ type Order struct {
 	SubTotalExTax        float64       `json:"subtotal_ex_tax,string"`
 	SubTotalIncTax       float64       `json:"subtotal_inc_tax,string"`
 	SubTotalTax          float64       `json:"subtotal_tax,string"`
-	DiscountAmount       float64       `json:"discount_amount"`
 	TotalExTax           float64       `json:"total_ex_tax,string"`
 	TotalIncTax          float64       `json:"total_inc_tax,string"`
 	TotalTax             float64       `json:"total_tax,string"`
