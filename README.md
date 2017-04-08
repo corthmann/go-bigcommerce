@@ -1,6 +1,8 @@
 # go-bigcommerce
 Go Bigcommerce REST API
 
+[![Build Status](https://travis-ci.org/corthmann/go-bigcommerce.svg?branch=master)](https://travis-ci.org/corthmann/go-bigcommerce)
+
 Installation
 -------------
 ```
