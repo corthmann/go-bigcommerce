@@ -127,6 +127,10 @@ type OrderBody struct {
 	CustomerMessage    string          `json:"customer_message"`
 	StaffNotes         string          `json:"staff_notes"`
 	PaymentMethod      string          `json:"payment_method"`
+	SubtotalExTax      *float64        `json:"subtotal_ex_tax,omitempty"`
+	SubtotalIncTax     *float64        `json:"subtotal_inc_tax,omitempty"`
+	TotalExTax         *float64        `json:"total_ex_tax,omitempty"`
+	TotalIncTax        *float64        `json:"total_inc_tax,omitempty"`
 }
 
 // New creates a new Order with the specified information and returns the new order.
