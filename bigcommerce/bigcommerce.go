@@ -1,21 +1,26 @@
 package bigcommerce
 
 import (
+	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
+	"strings"
 
-	"github.com/dghubble/sling"
-	"golang.org/x/net/context"
-	"golang.org/x/net/context/ctxhttp"
+	"context"
+
+	goquery "github.com/google/go-querystring/query"
 )
 
 const (
-	userAgent = "go-bigcommerce"
+	userAgent  = "go-bigcommerce"
+	methodGET  = "GET"
+	methodPOST = "POST"
+	methodPUT  = "PUT"
 )
 
 // Client is a Bigcommerce client for making Bigcommerce API requests.
 type Client struct {
-	sling      *sling.Sling
 	httpClient *http.Client
 	// Bigcommerce API Services
 	Orders                 *OrderService
@@ -34,33 +39,70 @@ type ClientConfig struct {
 
 // NewClient returns a new Client.
 func NewClient(httpClient *http.Client, config *ClientConfig) *Client {
-	base := sling.New().Client(httpClient).SetBasicAuth(config.UserName, config.Password).Set("Accept", "application/json; charset=utf-8").Set("Content-Type", "application/json").Base(config.Endpoint + "/api/v2/")
 	return &Client{
-		sling:                  base,
-		Orders:                 newOrderService(base.New(), httpClient),
-		OrderShippingAddresses: newOrderShippingAddressService(base.New(), httpClient),
-		OrderStatuses:          newOrderStatusService(base.New(), httpClient),
-		Products:               newProductService(base.New(), httpClient),
-		ProductCustomFields:    newProductCustomFieldService(base.New(), httpClient),
+		Orders:                 newOrderService(config, httpClient),
+		OrderShippingAddresses: newOrderShippingAddressService(config, httpClient),
+		OrderStatuses:          newOrderStatusService(config, httpClient),
+		Products:               newProductService(config, httpClient),
+		ProductCustomFields:    newProductCustomFieldService(config, httpClient),
 	}
 }
 
+// performGET creates a new context aware HTTP GET request and returns the response.
+func performGET(ctx context.Context, httpClient *http.Client, config *ClientConfig, path string, queryParams interface{}, successV, failureV interface{}) (*http.Response, error) {
+	return performRequest(ctx, httpClient, config, methodGET, path, queryParams, nil, successV, failureV)
+}
+
+// performPOST creates a new context aware HTTP POST request and returns the response.
+func performPOST(ctx context.Context, httpClient *http.Client, config *ClientConfig, path string, queryParams interface{}, body interface{}, successV, failureV interface{}) (*http.Response, error) {
+	return performRequest(ctx, httpClient, config, methodPOST, path, queryParams, body, successV, failureV)
+}
+
+// performPUT creates a new context aware HTTP PUT request and returns the response.
+func performPUT(ctx context.Context, httpClient *http.Client, config *ClientConfig, path string, queryParams interface{}, body interface{}, successV, failureV interface{}) (*http.Response, error) {
+	return performRequest(ctx, httpClient, config, methodPUT, path, queryParams, body, successV, failureV)
+}
+
 // performRequest creates a new context aware HTTP request and returns the response.
-func performRequest(ctx context.Context, s *sling.Sling, httpClient *http.Client, successV, failureV interface{}) (*http.Response, error) {
-	req, err := s.Request()
+func performRequest(ctx context.Context, httpClient *http.Client, config *ClientConfig, method string, path string, queryParams interface{}, body interface{}, successV, failureV interface{}) (*http.Response, error) {
+	// Marshal payload
+	payload, err := json.Marshal(body)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := ctxhttp.Do(ctx, httpClient, req)
+	// Generate Request Url with query params
+	queryValues, err := goquery.Values(queryParams)
 	if err != nil {
-		return resp, err
+		return nil, err
+	}
+	queryString := queryValues.Encode()
+	url := fmt.Sprintf("%v/api/v2/%v", config.Endpoint, path)
+	if queryString != "" {
+		url = strings.Join([]string{url, queryString}, "?")
+	}
+	// Create Request
+	req, err := http.NewRequest(method, url, bytes.NewBuffer(payload))
+	if err != nil {
+		return nil, err
+	}
+	req = req.WithContext(ctx)
+
+	// Set Headers
+	req.Header.Add("Accept", "application/json; charset=utf-8")
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("User-Agent", userAgent)
+	req.SetBasicAuth(config.UserName, config.Password)
+	// Perform request
+	response, err := httpClient.Do(req)
+	if err != nil {
+		return nil, err
 	}
 	// when err is nil, resp contains a non-nil resp.Body which must be closed
-	defer resp.Body.Close()
+	defer response.Body.Close()
 	if successV != nil || failureV != nil {
-		err = decodeResponseJSON(resp, successV, failureV)
+		err = decodeResponseJSON(response, successV, failureV)
 	}
-	return resp, err
+	return response, err
 }
 
 // decodeResponse decodes response Body into the value pointed to by successV

@@ -4,9 +4,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-
-	"github.com/dghubble/sling"
 )
+
+const orderStatusServicePath = "order_statuses/"
 
 // OrderStatus describes the product resource
 type OrderStatus struct {
@@ -17,13 +17,13 @@ type OrderStatus struct {
 
 // OrderStatusService adds the APIs for the Product resource.
 type OrderStatusService struct {
-	sling      *sling.Sling
+	config     *ClientConfig
 	httpClient *http.Client
 }
 
-func newOrderStatusService(sling *sling.Sling, httpClient *http.Client) *OrderStatusService {
+func newOrderStatusService(config *ClientConfig, httpClient *http.Client) *OrderStatusService {
 	return &OrderStatusService{
-		sling:      sling.Path("order_statuses/"),
+		config:     config,
 		httpClient: httpClient,
 	}
 }
@@ -39,8 +39,9 @@ func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListPa
 	var os []OrderStatus
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, &os, apiError)
-	return os, resp, relevantError(err, *apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, orderStatusServicePath, params, &os, apiError)
+
+	return os, response, relevantError(err, *apiError)
 }
 
 // Show returns the requested OrderStatus.
@@ -48,6 +49,8 @@ func (s *OrderStatusService) Show(ctx context.Context, id int) (*OrderStatus, *h
 	orderStatus := new(OrderStatus)
 	apiError := new(APIError)
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, orderStatus, apiError)
-	return orderStatus, resp, relevantError(err, *apiError)
+	path := fmt.Sprintf("%v%v", orderStatusServicePath, id)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &orderStatus, apiError)
+
+	return orderStatus, response, relevantError(err, *apiError)
 }
