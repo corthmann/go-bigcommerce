@@ -61,20 +61,20 @@ type ProductListParams struct {
 // List returns a list of Products matching the given ProductListParams.
 func (s *ProductService) List(ctx context.Context, params *ProductListParams) ([]Product, *http.Response, error) {
 	var products []Product
-	apiError := new(APIError)
+	var apiError APIError
 
-	response, err := performGET(ctx, s.httpClient, s.config, productServicePath, params, &products, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, productServicePath, params, &products, &apiError)
 
-	return products, response, relevantError(err, *apiError)
+	return products, response, relevantError(err, apiError)
 }
 
 // Show returns the requested Product.
 func (s *ProductService) Show(ctx context.Context, id int32) (*Product, *http.Response, error) {
 	product := new(Product)
-	apiError := new(APIError)
+	var apiError APIError
 
 	path := fmt.Sprintf("%v%v", productServicePath, id)
-	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &product, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &product, &apiError)
 
-	return product, response, relevantError(err, *apiError)
+	return product, response, relevantError(err, apiError)
 }

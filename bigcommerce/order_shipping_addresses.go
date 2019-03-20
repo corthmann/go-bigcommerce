@@ -37,33 +37,33 @@ type OrderShippingAddressListParams struct {
 // List returns a list of OrderShippingAddresses matching the given OrderShippingAddressListParams.
 func (s *OrderShippingAddressService) List(ctx context.Context, orderID int, params *OrderShippingAddressListParams) ([]OrderShippingAddress, *http.Response, error) {
 	var osa []OrderShippingAddress
-	apiError := new(APIError)
+	var apiError APIError
 
-	response, err := performGET(ctx, s.httpClient, s.config, s.servicePath(orderID), params, &osa, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, s.servicePath(orderID), params, &osa, &apiError)
 
-	return osa, response, relevantError(err, *apiError)
+	return osa, response, relevantError(err, apiError)
 }
 
 // Count returns an OrderShippingAddressCount for OrderShippingAddresses that matches the given OrderShippingAddressListParams.
 func (s *OrderShippingAddressService) Count(ctx context.Context, orderID int, params *OrderShippingAddressListParams) (int, *http.Response, error) {
 	var cnt count
-	apiError := new(APIError)
+	var apiError APIError
 
 	path := strings.Join([]string{s.servicePath(orderID), "count"}, "")
-	response, err := performGET(ctx, s.httpClient, s.config, path, params, &cnt, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, path, params, &cnt, &apiError)
 
-	return cnt.Count, response, relevantError(err, *apiError)
+	return cnt.Count, response, relevantError(err, apiError)
 }
 
 // Show returns the requested OrderShippingAddress.
 func (s *OrderShippingAddressService) Show(ctx context.Context, orderID int, id int) (*OrderShippingAddress, *http.Response, error) {
 	osa := new(OrderShippingAddress)
-	apiError := new(APIError)
+	var apiError APIError
 
 	path := fmt.Sprintf("%v%v", s.servicePath(orderID), id)
-	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &osa, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &osa, &apiError)
 
-	return osa, response, relevantError(err, *apiError)
+	return osa, response, relevantError(err, apiError)
 }
 
 func (s *OrderShippingAddressService) servicePath(orderID int) string {

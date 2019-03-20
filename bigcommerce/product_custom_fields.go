@@ -37,22 +37,22 @@ type ProductCustomFieldListParams struct {
 // List returns a list of ProductCustomFields matching the given ProductCustomFieldListParams.
 func (s *ProductCustomFieldService) List(ctx context.Context, productID int, params *ProductCustomFieldListParams) ([]ProductCustomField, *http.Response, error) {
 	var customFields []ProductCustomField
-	apiError := new(APIError)
+	var apiError APIError
 
-	response, err := performGET(ctx, s.httpClient, s.config, s.servicePath(productID), params, &customFields, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, s.servicePath(productID), params, &customFields, &apiError)
 
-	return customFields, response, relevantError(err, *apiError)
+	return customFields, response, relevantError(err, apiError)
 }
 
 // Show returns the requested ProductCustomField.
 func (s *ProductCustomFieldService) Show(ctx context.Context, productID int, id int) (*ProductCustomField, *http.Response, error) {
 	customField := new(ProductCustomField)
-	apiError := new(APIError)
+	var apiError APIError
 
 	path := fmt.Sprintf("%v/%d", s.servicePath(productID), id)
-	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &customField, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &customField, &apiError)
 
-	return customField, response, relevantError(err, *apiError)
+	return customField, response, relevantError(err, apiError)
 }
 
 func (s *ProductCustomFieldService) servicePath(productID int) string {

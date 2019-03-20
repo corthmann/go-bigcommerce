@@ -37,20 +37,20 @@ type OrderStatusListParams struct {
 // List returns a list of Products matching the given ProductListParams.
 func (s *OrderStatusService) List(ctx context.Context, params *OrderStatusListParams) ([]OrderStatus, *http.Response, error) {
 	var os []OrderStatus
-	apiError := new(APIError)
+	var apiError APIError
 
-	response, err := performGET(ctx, s.httpClient, s.config, orderStatusServicePath, params, &os, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, orderStatusServicePath, params, &os, &apiError)
 
-	return os, response, relevantError(err, *apiError)
+	return os, response, relevantError(err, apiError)
 }
 
 // Show returns the requested OrderStatus.
 func (s *OrderStatusService) Show(ctx context.Context, id int) (*OrderStatus, *http.Response, error) {
 	orderStatus := new(OrderStatus)
-	apiError := new(APIError)
+	var apiError APIError
 
 	path := fmt.Sprintf("%v%v", orderStatusServicePath, id)
-	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &orderStatus, apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &orderStatus, &apiError)
 
-	return orderStatus, response, relevantError(err, *apiError)
+	return orderStatus, response, relevantError(err, apiError)
 }
