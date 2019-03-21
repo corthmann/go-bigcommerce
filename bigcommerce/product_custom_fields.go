@@ -4,8 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/dghubble/sling"
-	"golang.org/x/net/context"
+	"context"
 )
 
 // ProductCustomField describes the product custom field resource
@@ -18,13 +17,13 @@ type ProductCustomField struct {
 
 // ProductCustomFieldService adds the APIs for the ProductCustomField resource.
 type ProductCustomFieldService struct {
-	sling      *sling.Sling
+	config     *ClientConfig
 	httpClient *http.Client
 }
 
-func newProductCustomFieldService(sling *sling.Sling, httpClient *http.Client) *ProductCustomFieldService {
+func newProductCustomFieldService(config *ClientConfig, httpClient *http.Client) *ProductCustomFieldService {
 	return &ProductCustomFieldService{
-		sling:      sling.Path("products/"),
+		config:     config,
 		httpClient: httpClient,
 	}
 }
@@ -38,17 +37,24 @@ type ProductCustomFieldListParams struct {
 // List returns a list of ProductCustomFields matching the given ProductCustomFieldListParams.
 func (s *ProductCustomFieldService) List(ctx context.Context, productID int, params *ProductCustomFieldListParams) ([]ProductCustomField, *http.Response, error) {
 	var customFields []ProductCustomField
-	apiError := new(APIError)
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/custom_fields", productID)).QueryStruct(params), s.httpClient, &customFields, apiError)
-	return customFields, resp, relevantError(err, *apiError)
+	response, err := performGET(ctx, s.httpClient, s.config, s.servicePath(productID), params, &customFields, &apiError)
+
+	return customFields, response, relevantError(err, apiError)
 }
 
 // Show returns the requested ProductCustomField.
 func (s *ProductCustomFieldService) Show(ctx context.Context, productID int, id int) (*ProductCustomField, *http.Response, error) {
 	customField := new(ProductCustomField)
-	apiError := new(APIError)
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d/custom_fields/%d", productID, id)), s.httpClient, customField, apiError)
-	return customField, resp, relevantError(err, *apiError)
+	path := fmt.Sprintf("%v/%d", s.servicePath(productID), id)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &customField, &apiError)
+
+	return customField, response, relevantError(err, apiError)
+}
+
+func (s *ProductCustomFieldService) servicePath(productID int) string {
+	return fmt.Sprintf("products/%d/custom_fields", productID)
 }

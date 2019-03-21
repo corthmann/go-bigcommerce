@@ -37,6 +37,31 @@ func TestOrderService_List(t *testing.T) {
 	assert.Equal(t, expected, orders)
 }
 
+func TestOrderService_ListWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		assertQuery(t, map[string]string{"customer_id": "0"}, r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := 0
+	params := &OrderListParams{
+		CustomerID: &customerID,
+	}
+	orders, _, err := client.Orders.List(context.Background(), params)
+	assert.EqualError(t, err, BadRequestErrorMessage)
+	assert.True(t, len(orders) == 0)
+}
+
 func TestOrderService_Count(t *testing.T) {
 	httpClient, mux, server := testServer()
 	defer server.Close()
@@ -62,6 +87,30 @@ func TestOrderService_Count(t *testing.T) {
 	assert.Equal(t, expected, count)
 }
 
+func TestOrderService_CountWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/count", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		assertQuery(t, map[string]string{"customer_id": "0"}, r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := 0
+	params := &OrderListParams{
+		CustomerID: &customerID,
+	}
+	_, _, err := client.Orders.Count(context.Background(), params)
+	assert.EqualError(t, err, BadRequestErrorMessage)
+}
+
 func TestOrderService_Show(t *testing.T) {
 	httpClient, mux, server := testServer()
 	defer server.Close()
@@ -80,6 +129,24 @@ func TestOrderService_Show(t *testing.T) {
 	order, _, err := client.Orders.Show(context.Background(), 123)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
+}
+
+func TestOrderService_ShowWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/123", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	_, _, err := client.Orders.Show(context.Background(), 123)
+	assert.EqualError(t, err, BadRequestErrorMessage)
 }
 
 func TestOrderService_New(t *testing.T) {
@@ -141,6 +208,66 @@ func TestOrderService_New(t *testing.T) {
 	order, _, err := client.Orders.New(context.Background(), body)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
+}
+
+func TestOrderService_NewWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "POST", r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := 10
+	statusID := 0
+	body := &OrderBody{
+		ExternalSource: "test-suite",
+		CustomerID:     &customerID,
+		StatusID:       &statusID,
+		BillingAddress: AddressEntity{
+			FirstName:   "Tester",
+			LastName:    "Test",
+			Street1:     "Test Street 1",
+			Street2:     "",
+			Zip:         "1234",
+			City:        "Test City",
+			Country:     "Denmark",
+			CountryIso2: "dk",
+			Phone:       "12345678",
+			Email:       "example@example.com",
+		},
+		Products: []OrderProduct{
+			{ProductID: 1, Quantity: 1},
+			{ProductID: 2, Quantity: 1},
+		},
+		ShippingCostIncTax: 0.0,
+		ShippingAddresses: AddressEntities{
+			{
+				FirstName:      "Tester",
+				LastName:       "Test",
+				Street1:        "Test Street 1",
+				Street2:        "",
+				Zip:            "1234",
+				City:           "Test City",
+				Country:        "Denmark",
+				CountryIso2:    "dk",
+				Phone:          "12345678",
+				Email:          "example@example.com",
+				ShippingMethod: "2-Day",
+			},
+		},
+		CustomerMessage: "This is a test.",
+		StaffNotes:      "Yeah... I'm not buying it.",
+	}
+	_, _, err := client.Orders.New(context.Background(), body)
+	assert.EqualError(t, err, BadRequestErrorMessage)
 }
 
 func TestOrderService_NewReply(t *testing.T) {
@@ -306,4 +433,27 @@ func TestOrderService_Edit(t *testing.T) {
 	order, _, err := client.Orders.Edit(context.Background(), 123, params)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, order)
+}
+
+func TestOrderService_EditWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/123", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "PUT", r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprintf(w, BadRequestJSON)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	statusID := 1
+	params := &OrderEditParams{
+		StatusID: &statusID,
+	}
+	_, _, err := client.Orders.Edit(context.Background(), 123, params)
+	assert.EqualError(t, err, BadRequestErrorMessage)
 }

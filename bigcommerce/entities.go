@@ -48,6 +48,7 @@ func (b BCTime) Time() *time.Time {
 	return b.t
 }
 
+// UnmarshalJSON decodes the json bytes and set the BCTime accordingly.
 func (b *BCTime) UnmarshalJSON(text []byte) error {
 	s, err := strconv.Unquote(string(text))
 	if err != nil {
@@ -65,6 +66,7 @@ func (b *BCTime) UnmarshalJSON(text []byte) error {
 	return nil
 }
 
+// MarshalJSON returns the JSON byte representation of BCTime.
 func (b BCTime) MarshalJSON() (text []byte, err error) {
 	if b.t == nil || b.t.IsZero() {
 		return []byte(`""`), nil

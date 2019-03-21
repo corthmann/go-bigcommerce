@@ -12,6 +12,9 @@ import (
 
 var defaultTestTimeout = time.Second * 1
 
+const BadRequestJSON = `[{ "status": 400, "message": "Bad Request" }]`
+const BadRequestErrorMessage = "bigcommerce: 400 Bad Request"
+
 // testServer returns an http Client, ServeMux, and Server. The client proxies
 // requests to the server and handlers can be registered on the mux to handle
 // requests. The caller must close the test server.

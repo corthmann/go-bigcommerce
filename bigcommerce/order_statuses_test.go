@@ -35,6 +35,29 @@ func TestOrderStatusService_List(t *testing.T) {
 	assert.Equal(t, expected, orderStatuses)
 }
 
+func TestOrderStatusService_ListWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/order_statuses/", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		assertQuery(t, map[string]string{"limit": "1"}, r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	params := &OrderStatusListParams{
+		Limit: 1,
+	}
+	orderStatuses, _, err := client.OrderStatuses.List(context.Background(), params)
+	assert.EqualError(t, err, BadRequestErrorMessage)
+	assert.True(t, len(orderStatuses) == 0)
+}
+
 func TestOrderStatusService_Show(t *testing.T) {
 	httpClient, mux, server := testServer()
 	defer server.Close()
@@ -53,4 +76,23 @@ func TestOrderStatusService_Show(t *testing.T) {
 	orderStatus, _, err := client.OrderStatuses.Show(context.Background(), 1)
 	assert.Nil(t, err)
 	assert.Equal(t, expected, orderStatus)
+}
+
+func TestOrderStatusService_ShowWithError(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/order_statuses/1", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "GET", r)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		fmt.Fprint(w, BadRequestJSON)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	_, _, err := client.OrderStatuses.Show(context.Background(), 1)
+	assert.EqualError(t, err, BadRequestErrorMessage)
 }

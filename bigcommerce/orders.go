@@ -4,9 +4,10 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-
-	"github.com/dghubble/sling"
+	"strings"
 )
+
+const orderServicePath = "orders/"
 
 // Order describes the product resource
 type Order struct {
@@ -46,13 +47,13 @@ type Order struct {
 
 // OrderService adds the APIs for the Order resource.
 type OrderService struct {
-	sling      *sling.Sling
+	config     *ClientConfig
 	httpClient *http.Client
 }
 
-func newOrderService(sling *sling.Sling, httpClient *http.Client) *OrderService {
+func newOrderService(config *ClientConfig, httpClient *http.Client) *OrderService {
 	return &OrderService{
-		sling:      sling.Path("orders/"),
+		config:     config,
 		httpClient: httpClient,
 	}
 }
@@ -76,28 +77,31 @@ type OrderListParams struct {
 // List returns a list of Orders matching the given OrderListParams.
 func (s *OrderService) List(ctx context.Context, params *OrderListParams) ([]Order, *http.Response, error) {
 	var orders []Order
-	apiError := new(APIError)
-
-	resp, err := performRequest(ctx, s.sling.New().QueryStruct(params), s.httpClient, &orders, apiError)
-	return orders, resp, relevantError(err, *apiError)
+	var apiError APIError
+	response, err := performGET(ctx, s.httpClient, s.config, orderServicePath, params, &orders, &apiError)
+	return orders, response, relevantError(err, apiError)
 }
 
 // Count returns an OrderCount for Orders that matches the given OrderListParams.
 func (s *OrderService) Count(ctx context.Context, params *OrderListParams) (int, *http.Response, error) {
-	var count count
-	apiError := new(APIError)
+	var cnt count
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.Get("count").QueryStruct(params), s.httpClient, &count, apiError)
-	return count.Count, resp, relevantError(err, *apiError)
+	path := strings.Join([]string{orderServicePath, "count"}, "")
+	response, err := performGET(ctx, s.httpClient, s.config, path, params, &cnt, &apiError)
+
+	return cnt.Count, response, relevantError(err, apiError)
 }
 
 // Show returns the requested Order.
 func (s *OrderService) Show(ctx context.Context, id int32) (*Order, *http.Response, error) {
 	order := new(Order)
-	apiError := new(APIError)
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().Get(fmt.Sprintf("%d", id)), s.httpClient, order, apiError)
-	return order, resp, relevantError(err, *apiError)
+	path := fmt.Sprintf("%v%v", orderServicePath, id)
+	response, err := performGET(ctx, s.httpClient, s.config, path, nil, &order, &apiError)
+
+	return order, response, relevantError(err, apiError)
 }
 
 // OrderProduct defines a product to be included in the OrderBody.
@@ -136,10 +140,11 @@ type OrderBody struct {
 // New creates a new Order with the specified information and returns the new order.
 func (s *OrderService) New(ctx context.Context, body *OrderBody) (*Order, *http.Response, error) {
 	order := new(Order)
-	apiError := new(APIError)
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().Post("").BodyJSON(body), s.httpClient, order, apiError)
-	return order, resp, relevantError(err, *apiError)
+	response, err := performPOST(ctx, s.httpClient, s.config, orderServicePath, nil, body, order, &apiError)
+
+	return order, response, relevantError(err, apiError)
 }
 
 // OrderEditParams describes the fields that are editable on an Order.
@@ -153,10 +158,12 @@ type OrderEditParams struct {
 }
 
 // Edit updates the given OrderEditParams of the given Order.
-func (s *OrderService) Edit(ctx context.Context, id int, params *OrderEditParams) (*Order, *http.Response, error) {
+func (s *OrderService) Edit(ctx context.Context, id int, body *OrderEditParams) (*Order, *http.Response, error) {
 	order := new(Order)
-	apiError := new(APIError)
+	var apiError APIError
 
-	resp, err := performRequest(ctx, s.sling.New().Put(fmt.Sprintf("%d", id)).BodyJSON(params), s.httpClient, order, apiError)
-	return order, resp, relevantError(err, *apiError)
+	path := fmt.Sprintf("%v%v", orderServicePath, id)
+	response, err := performPUT(ctx, s.httpClient, s.config, path, nil, body, order, &apiError)
+
+	return order, response, relevantError(err, apiError)
 }
