@@ -117,7 +117,10 @@ func decodeResponseJSON(resp *http.Response, successV, failureV interface{}) err
 		}
 	} else {
 		if failureV != nil {
-			return decodeResponseBodyJSON(resp, failureV)
+			if strings.Contains(resp.Header.Get("Content-Type"), "application/json") {
+				return decodeResponseBodyJSON(resp, failureV)
+			}
+			return fmt.Errorf("bigcommerce: %v", resp.Status)
 		}
 	}
 	return nil

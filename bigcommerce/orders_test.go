@@ -270,6 +270,73 @@ func TestOrderService_NewWithError(t *testing.T) {
 	assert.EqualError(t, err, BadRequestErrorMessage)
 }
 
+func TestOrderService_NewWithErrorContentHTML(t *testing.T) {
+	httpClient, mux, server := testServer()
+	defer server.Close()
+
+	mux.HandleFunc("/api/v2/orders/", func(w http.ResponseWriter, r *http.Request) {
+		assertMethod(t, "POST", r)
+		w.Header().Set("Content-Type", "application/html")
+		w.WriteHeader(http.StatusBadGateway)
+		fmt.Fprint(w, `
+			<html>
+			<head><title>502 Bad Gateway</title></head>
+			<body bgcolor="white">
+			<center><h1>502 Bad Gateway</h1></center>
+			<hr><center>openresty</center>
+			</body>
+			</html>`)
+	})
+
+	client := NewClient(httpClient, &ClientConfig{
+		Endpoint: "https://example.com",
+		UserName: "go-bigcommerce",
+		Password: "12345"})
+	customerID := 10
+	statusID := 0
+	body := &OrderBody{
+		ExternalSource: "test-suite",
+		CustomerID:     &customerID,
+		StatusID:       &statusID,
+		BillingAddress: AddressEntity{
+			FirstName:   "Tester",
+			LastName:    "Test",
+			Street1:     "Test Street 1",
+			Street2:     "",
+			Zip:         "1234",
+			City:        "Test City",
+			Country:     "Denmark",
+			CountryIso2: "dk",
+			Phone:       "12345678",
+			Email:       "example@example.com",
+		},
+		Products: []OrderProduct{
+			{ProductID: 1, Quantity: 1},
+			{ProductID: 2, Quantity: 1},
+		},
+		ShippingCostIncTax: 0.0,
+		ShippingAddresses: AddressEntities{
+			{
+				FirstName:      "Tester",
+				LastName:       "Test",
+				Street1:        "Test Street 1",
+				Street2:        "",
+				Zip:            "1234",
+				City:           "Test City",
+				Country:        "Denmark",
+				CountryIso2:    "dk",
+				Phone:          "12345678",
+				Email:          "example@example.com",
+				ShippingMethod: "2-Day",
+			},
+		},
+		CustomerMessage: "This is a test.",
+		StaffNotes:      "Yeah... I'm not buying it.",
+	}
+	_, _, err := client.Orders.New(context.Background(), body)
+	assert.EqualError(t, err, "bigcommerce: 502 Bad Gateway")
+}
+
 func TestOrderService_NewReply(t *testing.T) {
 	httpClient, mux, server := testServer()
 	defer server.Close()
